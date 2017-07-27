@@ -47,6 +47,7 @@ def get_channel(name):
     for c in serv.channels:
         if c.name == name:
             return c
+    return None
 
 @client.event
 async def on_ready():
@@ -54,26 +55,29 @@ async def on_ready():
     print('UID:', client.user.id)
     print('Invite: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(client.user.id))
     print('READY TO ROCK AND ROLL BABY')
-    chan = get_channel(channel_name)
-    client.send_message(chan, 'Hello, World!')
+    print('--------')
+    for s in client.servers:
+        for c in s.channels:
+            if c.name == channel_name:
+                await client.send_message(c, 'Hello, World!')
 
 @client.event
 async def on_member_join(member):
-    print('New user', client.user.name)
+    print('New user', member.name)
     chan = get_channel(channel_name)
-    client.send_message(chan, get_join_message(member))
+    await client.send_message(chan, get_join_message(member))
 
 @client.event
 async def on_message(message):
     if message.channel.name != channel_name:
         return
-    for k, v in config.groups.items():
+    for k, v in config['groups'].items():
         role = find_role(v)
-        if role in message.user.roles:
+        if role in message.author.roles:
             return
-        if message.content.contains(k):
-            print('Trying to assign role', v, 'to', message.user.name, '...')
-            client.add_roles(message.user, role)
+        if k in message.content:
+            print('Trying to assign role', v, 'to', message.author.name, '...')
+            await client.add_roles(message.author, role)
             print('OK!')
 
 print('Got user ID', user_id)
