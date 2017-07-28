@@ -15,22 +15,21 @@ invite = args[4]
 client = discord.Client()
 
 config = {
-    'groups': {
-        '\'first': '1st year',
-        '\'second': '2nd year',
-        '\'third': '3rd year',
-        '\'fourth': '4th year',
-        '\'fifth': '5th year',
-        '\'grad': 'grad-student',
-        '\'alum': 'alum'
-    }
+    'groups': [
+        ('\'first', '1st year'),
+        ('\'second', '2nd year'),
+        ('\'third', '3rd year'),
+        ('\'fourth', '4th year'),
+        ('\'fifth', '5th year'),
+        ('\'grad', 'grad-student'),
+        ('\'alum', 'alum')
+    ]
 }
 
 def gen_join_message(user):
-    message = 'Hi there, {}!  Welcome to the NEU CCIS Discord server!  Please state your year to be assigned a group!' % user.mention
-    for k, v in config.groups.items():
-        message.append('\n')
-        message.append('* `' + k + '`: ' + v)
+    message = 'Hi there, {}!  Welcome to the NEU CCIS Discord server!  Please state your year to be assigned a group!'.format(user.mention)
+    for entry in config['groups']:
+        message += ('\n➤ `' + entry[0] + '` ⇒ ' + entry[1])
     return message
 
 def find_role(name):
@@ -61,24 +60,41 @@ async def on_ready():
             if c.name == channel_name:
                 await client.send_message(c, 'Hello, World!')
 
+async def __broadcast_announce_message(member):
+    chan = get_channel(channel_name)
+    await client.send_message(chan, gen_join_message(member))
+
 @client.event
 async def on_member_join(member):
     print('New user', member.name)
-    chan = get_channel(channel_name)
-    await client.send_message(chan, get_join_message(member))
+    await __broadcast_announce_message(member)
 
 @client.event
 async def on_message(message):
+
     if message.channel.name != channel_name:
         return
-    for k, v in config['groups'].items():
-        role = find_role(v)
-        if role in message.author.roles:
-            return
-        if k in message.content:
-            print('Trying to assign role', v, 'to', message.author.name, '...')
-            await client.add_roles(message.author, role)
-            print('OK!')
+
+    if message.author == client.user:
+        return # Let's not mess with ourselves.
+
+    if message.content == '\'joinmessage':
+        await __broadcast_announce_message(message.author)
+
+    ok = True
+    for r in message.author.roles:
+        for entry in config['groups']:
+            if entry[1] == r.name:
+                ok = False # They already have a role.
+                break
+    if ok:
+        for entry in config['groups']:
+            role = find_role(entry[1])
+            if entry[0] in message.content:
+                print('Trying to assign role', entry[1], 'to', message.author.name, '...')
+                await client.add_roles(message.author, role)
+                print('OK!\n')
+
 
 print('Got user ID', user_id)
 client.run(user_id)
