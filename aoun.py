@@ -28,8 +28,8 @@ config = {
 
 def gen_join_message(user):
     message = 'Hi there, {}!  Welcome to the NEU CCIS Discord server!  Please state your year to be assigned a group!'.format(user.mention)
-    for entry in config['groups']:
-        message += ('\n➤ `' + entry[0] + '` ⇒ ' + entry[1])
+    for cmd, role_name in config['groups']:
+        message += ('\n➤ `' + cmd + '` ⇒ ' + role_name)
     return message
 
 def find_role(name):
@@ -81,19 +81,22 @@ async def on_message(message):
     if message.content == '\'joinmessage':
         await __broadcast_announce_message(message.author)
 
-    ok = True
-    for r in message.author.roles:
-        for entry in config['groups']:
-            if entry[1] == r.name:
-                ok = False # They already have a role.
-                break
-    if ok:
-        for entry in config['groups']:
-            role = find_role(entry[1])
-            if entry[0] in message.content:
-                print('Trying to assign role', entry[1], 'to', message.author.name, '...')
+    role_to_assign = None
+    for cmd, role_name in config['groups']:
+        if cmd in message.content:
+            role_to_assign = role_name
+            break
+
+    if role_to_assign is not None:
+        print('Trying to assign role', role_to_assign, 'to', message.author.name, '...')
+        for _, role_name in config['groups']:
+            role = find_role(role_name)
+            if role_name == role_to_assign:
                 await client.add_roles(message.author, role)
-                print('OK!\n')
+            else:
+                await client.remove_roles(message.author, role)
+        print('OK!\n')
+
 
 
 print('Got user ID', user_id)
