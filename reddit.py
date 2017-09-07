@@ -12,6 +12,7 @@ import praw
 
 args = sys.argv
 
+# Pull a bunch of setting from envvars.
 rclientid = os.environ['rclientid']
 rclientsecret = os.environ['rclientsecret']
 rusername = 'AounBot' # I shouldn't hardcode this, but whatever.
@@ -24,9 +25,10 @@ dserverid = os.environ['dserverid']
 dchannelname = os.environ['dchannelname']
 dinvite = os.environ['dinvite']
 
+# Set up the Discord client.
 dc = discord.Client()
-dchannel = None
 
+# Set up the reddit wrapper.
 reddit = praw.Reddit( \
     client_id = rclientid, \
     client_secret = rclientsecret, \
@@ -36,13 +38,17 @@ reddit = praw.Reddit( \
 
 @asyncio.coroutine
 async def reddit_loop(chan):
+    # We have to set the last time we checked to the current time so that we don't check stuff all the way in the past.
     lastcheck = datetime.datetime.utcnow()
+    # Also wait until Discord is set up, if it isn't already.
     await dc.wait_until_ready()
+    # Pull the subreddit handles.
     neusub = reddit.subreddit(rsubreddit)
     while True:
         print('Checking subreddits...')
-        recent = neusub.new(limit = 5)
+        recent = neusub.new(limit = 5) # Limit 5 to be nice.
         for p in recent:
+            # If we already passed it then don't announce it.
             if datetime.datetime.utcfromtimestamp(p.created_utc) > lastcheck: # Ugly but works.
                 print('posting', str(p))
                 await dc.send_message(chan, '➤ **New reddit post:** ' + p.shortlink)
@@ -56,10 +62,12 @@ async def on_ready():
     print('Discord Username:', dc.user.name)
     print('Discord UID:', dc.user.id)
     print('Discord Invite: https://discordapp.com/oauth2/authorize?client_id={}&scope=bot'.format(dc.user.id))
+    # Ugly way to look up channel by name.
     for s in dc.servers:
         for c in s.channels:
             if c.name == dchannelname:
                 dc.loop.create_task(reddit_loop(c))
 
+# Get it all going.
 print('Got user ID:', dclientid)
 dc.run(dclientid)
