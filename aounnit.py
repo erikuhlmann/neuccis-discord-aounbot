@@ -17,8 +17,8 @@ rclientsecret = os.environ['rclientsecret']
 rusername = 'AounBot' # I shouldn't hardcode this, but whatever.
 rpassword = os.environ['rpassword']
 ruseragent = 'AounBot by /u/Treyzania for /r/NEU'
-rsubreddit = 'Treyzania' # Probably shouldn't hardcode this either.
-rsleep = 10 # Ever 60 seconds.  Also shouldn't hardcode this.
+rsubreddit = 'NEU+CCIS+Racket'
+rsleep = 60 # Ever 60 seconds.  Also shouldn't hardcode this.
 dclientid = os.environ['dclientid']
 dserverid = os.environ['dserverid']
 dchannelname = os.environ['dchannelname']
@@ -34,23 +34,20 @@ reddit = praw.Reddit( \
     password = rpassword, \
     user_agent = ruseragent)
 
-lastcheck = datetime.datetime.utcnow()
-
 @asyncio.coroutine
 async def reddit_loop(chan):
-    global lastcheck
+    lastcheck = datetime.datetime.utcnow()
     await dc.wait_until_ready()
     neusub = reddit.subreddit(rsubreddit)
-    seen = []
     while True:
         print('Checking subreddits...')
         recent = neusub.new(limit = 5)
         for p in recent:
-            if datetime.datetime.utcfromtimestamp(p.created) > lastcheck: # How the fuck do I fix this?
-                print('New post:', str(p))
+            if datetime.datetime.utcfromtimestamp(p.created_utc) > lastcheck: # Ugly but works.
+                print('posting', str(p))
                 await dc.send_message(chan, '➤ **New reddit post:** ' + p.shortlink)
             else:
-                print('Already submitted post:', str(p))
+                print('ignoring', str(p))
         lastcheck = datetime.datetime.utcnow()
         await asyncio.sleep(rsleep)
 
