@@ -2,5 +2,6 @@
 
 echo 'Starting all services...'
 for f in auth-*.sh; do
-	screen -S aoun-$f ./$f
+	echo Starting $f...
+	screen -dmS aoun-$f ./$f
 done
