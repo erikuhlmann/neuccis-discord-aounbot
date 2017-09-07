@@ -13,7 +13,7 @@ and then returns.
 
 ## Help Wanted
 
-* Randomly post copypasta in random channels.
+* Randomly post copypasta in random channels.  (See `copypasta.txt`, entries separated with `\n\n`)
 
 * Scrape [/r/programmingcirclejerk](https://reddit.com/r/programmingcirclejerk) for posts containing any of ["go", "rust", "generics", "node"] with greater than some number of upvotes.
 
