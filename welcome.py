@@ -16,13 +16,13 @@ client = discord.Client()
 
 config = {
     'groups': [
-        ('\'first', '1st year'),
-        ('\'second', '2nd year'),
-        ('\'third', '3rd year'),
-        ('\'fourth', '4th year'),
-        ('\'fifth', '5th year'),
-        ('\'grad', 'grad-student'),
-        ('\'alum', 'alum')
+        ('first', '1st year'),
+        ('second', '2nd year'),
+        ('third', '3rd year'),
+        ('fourth', '4th year'),
+        ('fifth', '5th year'),
+        ('grad', 'grad-student'),
+        ('alum', 'alum')
     ]
 }
 

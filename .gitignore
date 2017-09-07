@@ -99,5 +99,4 @@ ENV/
 .mypy_cache/
 
 ### Mine
-start.sh
-test-reddit.sh
+auth-*.sh
