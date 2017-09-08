@@ -10,9 +10,6 @@ invite = os.environ['invite']
 text = open('copypasta.txt').read()
 text = text.split("\n\n")
 
-userid = 'MzU1NTE2MDM1OTc5MjgwMzg1.DJN8lw.kO2lpWFxupnldnFmtCikwVV5Uyk'
-serverid = '355516525693763585'
-
 client = discord.Client()
 
 @asyncio.coroutine
