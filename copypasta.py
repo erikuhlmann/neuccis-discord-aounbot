@@ -34,8 +34,9 @@ async def on_ready():
 
 @client.event
 async def on_message(message):
-    if message.content.startswith('!pasta'):
-       await client.send_message(message.channel, random.choice(text))
+    if ("lonely" in message.content.lower()) and ("hackathon" in message.content.lower()):
+    	await asyncio.sleep(random.randint(30, 90))
+    	await client.send_message(message.channel, random.choice(text))
 
 print('Got user ID:', userid)
 client.run(userid)
